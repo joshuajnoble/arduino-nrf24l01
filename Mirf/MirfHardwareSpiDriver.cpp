@@ -5,8 +5,9 @@ uint8_t MirfHardwareSpiDriver::transfer(uint8_t data){
 
 void MirfHardwareSpiDriver::begin(){
 	SPI.begin();
-	SPI.setDataMode(SPI_MODE0);
-	SPI.setClockDivider(SPI_2XCLOCK_MASK);
+	//SPI.setDataMode(SPI_MODE0);
+	// TODO THIS NEEDS TO BE SOMETHING
+	//SPI.setClockDivider(SPI_2XCLOCK_MASK);
 }
 
 void MirfHardwareSpiDriver::end(){
