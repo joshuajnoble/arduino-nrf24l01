@@ -53,27 +53,37 @@
 #include "Mirf.h"
 // Defines for setting the MiRF registers for transmitting or receiving mode
 
-Nrf24l Mirf = Nrf24l();
+//Nrf24l Mirf = Nrf24l();
 
 Nrf24l::Nrf24l(){
 	cePin = 8;
 	csnPin = 7;
 	channel = 1;
 	payload = 16;
-	spi = NULL;
+
+    
+	//spi = NULL;
+}
+
+Nrf24l::Nrf24l( int csn, int ce)
+{
+    cePin = ce;
+    csnPin = csn;
+    channel = 1;
+    payload = 16;
 }
 
 void Nrf24l::transferSync(uint8_t *dataout,uint8_t *datain,uint8_t len){
 	uint8_t i;
 	for(i = 0;i < len;i++){
-		datain[i] = spi->transfer(dataout[i]);
+		datain[i] = SPI.transfer(dataout[i]);
 	}
 }
 
 void Nrf24l::transmitSync(uint8_t *dataout,uint8_t len){
 	uint8_t i;
 	for(i = 0;i < len;i++){
-		spi->transfer(dataout[i]);
+		SPI.transfer(dataout[i]);
 	}
 }
 
@@ -89,7 +99,7 @@ void Nrf24l::init()
     csnHi();
 
     // Initialize spi module
-    spi->begin();
+    SPI.begin();
 
 }
 
@@ -155,7 +165,7 @@ extern void Nrf24l::getData(uint8_t * data)
 // Reads payload bytes into data array
 {
     csnLow();                               // Pull down chip select
-    spi->transfer( R_RX_PAYLOAD );            // Send cmd to read rx payload
+    SPI.transfer( R_RX_PAYLOAD );            // Send cmd to read rx payload
     transferSync(data,data,payload); // Read payload
     csnHi();                               // Pull up chip select
     // NVI: per product spec, p 67, note c:
@@ -173,8 +183,8 @@ void Nrf24l::configRegister(uint8_t reg, uint8_t value)
 // Clocks only one byte into the given MiRF register
 {
     csnLow();
-    spi->transfer(W_REGISTER | (REGISTER_MASK & reg));
-    spi->transfer(value);
+    SPI.transfer(W_REGISTER | (REGISTER_MASK & reg));
+    SPI.transfer(value);
     csnHi();
 }
 
@@ -182,7 +192,7 @@ void Nrf24l::readRegister(uint8_t reg, uint8_t * value, uint8_t len)
 // Reads an array of bytes from the given start position in the MiRF registers.
 {
     csnLow();
-    spi->transfer(R_REGISTER | (REGISTER_MASK & reg));
+    SPI.transfer(R_REGISTER | (REGISTER_MASK & reg));
     transferSync(value,value,len);
     csnHi();
 }
@@ -191,7 +201,7 @@ void Nrf24l::writeRegister(uint8_t reg, uint8_t * value, uint8_t len)
 // Writes an array of bytes into inte the MiRF registers.
 {
     csnLow();
-    spi->transfer(W_REGISTER | (REGISTER_MASK & reg));
+    SPI.transfer(W_REGISTER | (REGISTER_MASK & reg));
     transmitSync(value,len);
     csnHi();
 }
@@ -218,11 +228,11 @@ void Nrf24l::send(uint8_t * value)
     powerUpTx();       // Set to transmitter mode , Power up
     
     csnLow();                    // Pull down chip select
-    spi->transfer( FLUSH_TX );     // Write cmd to flush tx fifo
+    SPI.transfer( FLUSH_TX );     // Write cmd to flush tx fifo
     csnHi();                    // Pull up chip select
     
     csnLow();                    // Pull down chip select
-    spi->transfer( W_TX_PAYLOAD ); // Write cmd to write payload
+    SPI.transfer( W_TX_PAYLOAD ); // Write cmd to write payload
     transmitSync(value,payload);   // Write payload
     csnHi();                    // Pull up chip select
 
@@ -272,7 +282,7 @@ void Nrf24l::powerUpRx(){
 
 void Nrf24l::flushRx(){
     csnLow();
-    spi->transfer( FLUSH_RX );
+    SPI.transfer( FLUSH_RX );
     csnHi();
 }
 

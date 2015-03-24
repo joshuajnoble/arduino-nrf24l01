@@ -30,7 +30,8 @@
 #include <Arduino.h>
 
 #include "nRF24L01.h"
-#include "MirfSpiDriver.h"
+//#include "MirfSpiDriver.h"
+#include <SPI.h>
 
 // Nrf24l settings
 
@@ -40,6 +41,7 @@
 class Nrf24l {
 	public:
 		Nrf24l();
+        Nrf24l( int csn, int ce);
 
 		void init();
 		void config();
@@ -102,7 +104,7 @@ class Nrf24l {
 		 * Spi interface (must extend spi).
 		 */
 
-		MirfSpiDriver *spi;
+		//MirfSpiDriver *spi;
 };
 
 extern Nrf24l Mirf;
